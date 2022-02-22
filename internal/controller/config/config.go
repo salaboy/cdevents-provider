@@ -28,7 +28,7 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/reconciler/providerconfig"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 
-	"github.com/crossplane/provider-template/apis/v1alpha1"
+	"github.com/salaboy/cdevents-provider/apis/v1alpha1"
 )
 
 // Setup adds a controller that reconciles ProviderConfigs by accounting for
@@ -37,7 +37,7 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
 	name := providerconfig.ControllerName(v1alpha1.ProviderConfigGroupKind)
 
 	o := controller.Options{
-		RateLimiter: ratelimiter.NewDefaultManagedRateLimiter(rl),
+		RateLimiter: ratelimiter.NewDefaultManagedRateLimiter(rl), //nolint
 	}
 
 	of := resource.ProviderConfigKinds{

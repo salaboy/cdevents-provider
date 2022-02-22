@@ -1,0 +1,14 @@
+apiVersion: container.gcp.crossplane.io/v1beta2
+kind: Cluster
+metadata:
+  name: bootstrap-cluster
+spec:
+  deletionPolicy: Delete
+  forProvider:
+    initialClusterVersion: latest
+    location: asia-south1-a
+    loggingService: none
+    monitoringService: none
+  writeConnectionSecretToRef:
+    name: bootstrap-cluster-creds
+    namespace: default

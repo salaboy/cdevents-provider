@@ -14,14 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package mytype
+package cluster
 
 import (
 	"context"
 	"fmt"
 
+	commonv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 	"github.com/pkg/errors"
-	"k8s.io/apimachinery/pkg/types"
+	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/util/workqueue"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -33,12 +34,14 @@ import (
 	"github.com/crossplane/crossplane-runtime/pkg/reconciler/managed"
 	"github.com/crossplane/crossplane-runtime/pkg/resource"
 
-	"github.com/salaboy/cdevents-provider/apis/sample/v1alpha1"
+	containerv1beta2 "github.com/crossplane/provider-gcp/apis/container/v1beta2"
+
 	apisv1alpha1 "github.com/salaboy/cdevents-provider/apis/v1alpha1"
 )
 
 const (
-	errNotMyType    = "managed resource is not a MyType custom resource"
+	// errNotMyType    = "managed resource is not a MyType custom resource"
+	errNotCluster   = "managed resource is not a Cluster resource"
 	errTrackPCUsage = "cannot track ProviderConfig usage"
 	errGetPC        = "cannot get ProviderConfig"
 	errGetCreds     = "cannot get credentials"
@@ -55,14 +58,16 @@ var (
 
 // Setup adds a controller that reconciles MyType managed resources.
 func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
-	name := managed.ControllerName(v1alpha1.MyTypeGroupKind)
+	// name := managed.ControllerName(v1alpha1.MyTypeGroupKind)
+	name := managed.ControllerName(containerv1beta2.ClusterGroupKind)
 
 	o := controller.Options{
-		RateLimiter: ratelimiter.NewDefaultManagedRateLimiter(rl), // nolint
+		RateLimiter: ratelimiter.NewDefaultManagedRateLimiter(rl), //nolint
 	}
 
 	r := managed.NewReconciler(mgr,
-		resource.ManagedKind(v1alpha1.MyTypeGroupVersionKind),
+		// resource.ManagedKind(v1alpha1.MyTypeGroupVersionKind),
+		resource.ManagedKind(containerv1beta2.ClusterGroupVersionKind),
 		managed.WithExternalConnecter(&connector{
 			kube:         mgr.GetClient(),
 			usage:        resource.NewProviderConfigUsageTracker(mgr.GetClient(), &apisv1alpha1.ProviderConfigUsage{}),
@@ -73,7 +78,8 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
 		WithOptions(o).
-		For(&v1alpha1.MyType{}).
+		// For(&v1alpha1.MyType{}).
+		For(&containerv1beta2.Cluster{}).
 		Complete(r)
 }
 
@@ -91,27 +97,28 @@ type connector struct {
 // 3. Getting the credentials specified by the ProviderConfig.
 // 4. Using the credentials to form a client.
 func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.ExternalClient, error) {
-	cr, ok := mg.(*v1alpha1.MyType)
+	// cr, ok := mg.(*v1alpha1.MyType)
+	_, ok := mg.(*containerv1beta2.Cluster)
 	if !ok {
-		return nil, errors.New(errNotMyType)
+		return nil, errors.New(errNotCluster)
 	}
 
 	if err := c.usage.Track(ctx, mg); err != nil {
 		return nil, errors.Wrap(err, errTrackPCUsage)
 	}
 
-	pc := &apisv1alpha1.ProviderConfig{}
-	if err := c.kube.Get(ctx, types.NamespacedName{Name: cr.GetProviderConfigReference().Name}, pc); err != nil {
-		return nil, errors.Wrap(err, errGetPC)
-	}
+	// pc := &apisv1alpha1.ProviderConfig{}
+	// if err := c.kube.Get(ctx, types.NamespacedName{Name: cr.GetProviderConfigReference().Name}, pc); err != nil {
+	// 	return nil, errors.Wrap(err, errGetPC)
+	// }
 
-	cd := pc.Spec.Credentials
-	data, err := resource.CommonCredentialExtractor(ctx, cd.Source, c.kube, cd.CommonCredentialSelectors)
-	if err != nil {
-		return nil, errors.Wrap(err, errGetCreds)
-	}
+	// cd := pc.Spec.Credentials
+	// data, err := resource.CommonCredentialExtractor(ctx, cd.Source, c.kube, cd.CommonCredentialSelectors)
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, errGetCreds)
+	// }
 
-	svc, err := c.newServiceFn(data)
+	svc, err := c.newServiceFn([]byte{}) // data)
 	if err != nil {
 		return nil, errors.Wrap(err, errNewClient)
 	}
@@ -128,13 +135,24 @@ type external struct {
 }
 
 func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.ExternalObservation, error) {
-	cr, ok := mg.(*v1alpha1.MyType)
+	// cr, ok := mg.(*v1alpha1.MyType)
+	cr, ok := mg.(*containerv1beta2.Cluster)
 	if !ok {
-		return managed.ExternalObservation{}, errors.New(errNotMyType)
+		return managed.ExternalObservation{}, errors.New(errNotCluster)
 	}
 
 	// These fmt statements should be removed in the real implementation.
-	fmt.Printf("Observing: %+v", cr)
+	// fmt.Printf("Observing: %+v", cr)
+
+	if len(cr.Status.Conditions) > 0 {
+		for _, cond := range cr.Status.Conditions {
+			if cond.Type == commonv1.TypeReady {
+				if cond.Status == corev1.ConditionTrue {
+					fmt.Println("*************** Cluster ready **************")
+				}
+			}
+		}
+	}
 
 	return managed.ExternalObservation{
 		// Return false when the external resource does not exist. This lets
@@ -154,9 +172,10 @@ func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 }
 
 func (c *external) Create(ctx context.Context, mg resource.Managed) (managed.ExternalCreation, error) {
-	cr, ok := mg.(*v1alpha1.MyType)
+	// cr, ok := mg.(*v1alpha1.MyType)
+	cr, ok := mg.(*containerv1beta2.Cluster)
 	if !ok {
-		return managed.ExternalCreation{}, errors.New(errNotMyType)
+		return managed.ExternalCreation{}, errors.New(errNotCluster)
 	}
 
 	fmt.Printf("Creating: %+v", cr)
@@ -169,9 +188,10 @@ func (c *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 }
 
 func (c *external) Update(ctx context.Context, mg resource.Managed) (managed.ExternalUpdate, error) {
-	cr, ok := mg.(*v1alpha1.MyType)
+	// cr, ok := mg.(*v1alpha1.MyType)
+	cr, ok := mg.(*containerv1beta2.Cluster)
 	if !ok {
-		return managed.ExternalUpdate{}, errors.New(errNotMyType)
+		return managed.ExternalUpdate{}, errors.New(errNotCluster)
 	}
 
 	fmt.Printf("Updating: %+v", cr)
@@ -184,9 +204,10 @@ func (c *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 }
 
 func (c *external) Delete(ctx context.Context, mg resource.Managed) error {
-	cr, ok := mg.(*v1alpha1.MyType)
+	// cr, ok := mg.(*v1alpha1.MyType)
+	cr, ok := mg.(*containerv1beta2.Cluster)
 	if !ok {
-		return errors.New(errNotMyType)
+		return errors.New(errNotCluster)
 	}
 
 	fmt.Printf("Deleting: %+v", cr)

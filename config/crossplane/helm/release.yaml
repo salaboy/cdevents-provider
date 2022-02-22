@@ -1,0 +1,15 @@
+apiVersion: helm.crossplane.io/v1beta1
+kind: Release
+metadata:
+  name: crossplane-release
+spec:
+  forProvider:
+    namespace: default
+    chart:
+      name: crossplane
+      repository: https://charts.crossplane.io/stable
+      version: 1.6.3
+  providerConfigRef:
+    name: provider-helm-config
+  providerRef:
+    name: provider-helm

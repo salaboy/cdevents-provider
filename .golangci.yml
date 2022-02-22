@@ -38,7 +38,7 @@ linters-settings:
   goimports:
     # put imports beginning with prefix after 3rd-party packages;
     # it's a comma-separated list of prefixes
-    local-prefixes: github.com/crossplane/provider-template
+    local-prefixes: github.com/salaboy/cdevents-provider
 
   gocyclo:
     # minimal code complexity to report, 30 by default (but we recommend 10-20)
@@ -152,9 +152,9 @@ issues:
 
     # This "TestMain should call os.Exit to set exit code" warning is not clever
     # enough to notice that we call a helper method that calls os.Exit.
-    - text: "SA3000:"
-      linters:
-      - staticcheck
+    # - text: "SA3000:"
+    #   linters:
+    #   # - staticcheck
 
     - text: "k8s.io/api/core/v1"
       linters:

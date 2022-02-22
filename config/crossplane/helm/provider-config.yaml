@@ -1,0 +1,18 @@
+apiVersion: helm.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: provider-helm-config
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      key: kubeconfig
+      name: bootstrap-cluster-creds
+      namespace: default
+  identity:
+    type: GoogleApplicationCredentials
+    source: Secret
+    secretRef:
+      name: gcp-creds
+      namespace: crossplane-system
+      key: creds

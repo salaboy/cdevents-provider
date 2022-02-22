@@ -18,10 +18,13 @@ limitations under the License.
 package apis
 
 import (
-	"k8s.io/apimachinery/pkg/runtime"
+	containerv1beta2 "github.com/crossplane/provider-gcp/apis/container/v1beta2"
 
-	samplev1alpha1 "github.com/crossplane/provider-template/apis/sample/v1alpha1"
-	templatev1alpha1 "github.com/crossplane/provider-template/apis/v1alpha1"
+	samplev1alpha1 "github.com/salaboy/cdevents-provider/apis/sample/v1alpha1"
+	templatev1alpha1 "github.com/salaboy/cdevents-provider/apis/sample/v1alpha1"
+	providerv1alpha1 "github.com/salaboy/cdevents-provider/apis/v1alpha1"
+
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 func init() {
@@ -29,6 +32,8 @@ func init() {
 	AddToSchemes = append(AddToSchemes,
 		templatev1alpha1.SchemeBuilder.AddToScheme,
 		samplev1alpha1.SchemeBuilder.AddToScheme,
+		providerv1alpha1.SchemeBuilder.AddToScheme,
+		containerv1beta2.SchemeBuilder.AddToScheme,
 	)
 }
 

@@ -1,0 +1,16 @@
+apiVersion: container.gcp.crossplane.io/v1beta1
+kind: NodePool
+metadata:
+  name: workload-node-pool
+spec:
+  deletionPolicy: Delete
+  forProvider:
+    autoscaling:
+      enabled: false
+    clusterRef:
+      name: bootstrap-cluster
+    config:
+      diskSizeGb: 10
+      machineType: e2-micro
+    initialNodeCount: 3
+

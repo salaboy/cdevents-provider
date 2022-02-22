@@ -13,6 +13,12 @@ Currently we have the following things defined in the setup:
 4. Install knative onto this cluster – `make install-knative`
 5. Install tekton and setup required RBAC – `make install-tekton`
 
+### Controllers and types
+Currently we have all the existing types and controllers defined in `provider-template`
+* `ProviderConfig` – will hold configuration for CDEvents like endpoint to connect to, callback URL etc.
+* `MyType` - just for reference, will be removed
+* `Cluster controller` - controller for the `github.com/crossplane/provider-gcp/apis/container/v1beta2` resource, we would track this and wait for `Status.Conditions[].Ready == True` and trigger the CDEvent for the start
+
 # provider-template
 
 `provider-template` is a minimal [Crossplane](https://crossplane.io/) Provider

@@ -43,8 +43,8 @@ const (
 	// errNotMyType    = "managed resource is not a MyType custom resource"
 	errNotCluster   = "managed resource is not a Cluster resource"
 	errTrackPCUsage = "cannot track ProviderConfig usage"
-	errGetPC        = "cannot get ProviderConfig"
-	errGetCreds     = "cannot get credentials"
+	// errGetPC        = "cannot get ProviderConfig"
+	// errGetCreds     = "cannot get credentials"
 
 	errNewClient = "cannot create new Service"
 )

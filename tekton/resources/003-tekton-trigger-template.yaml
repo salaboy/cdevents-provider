@@ -1,0 +1,29 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: test-trigger-template
+spec:
+  params:
+    - name: firstName
+      default: anonymous
+    - name: eventType
+      default: unknown
+    - name: source
+      default: unknown
+    - name: id
+      default: unknown
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: TaskRun
+      metadata:
+        generateName: hello-run-
+      spec:
+        params:
+          - name: eventType
+            value: $(tt.params.eventType)
+          - name: source
+            value: $(tt.params.source)
+          - name: id
+            value: $(tt.params.id)
+        taskRef:
+          name: hello

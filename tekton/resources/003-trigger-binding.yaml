@@ -1,0 +1,12 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: test-trigger-binding
+spec:
+  params:
+    - name: eventType
+      value: $(header.Ce-Type)
+    - name: source
+      value: $(header.Ce-Source)
+    - name: id
+      value: $(header.Ce-Id)

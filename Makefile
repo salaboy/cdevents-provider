@@ -23,8 +23,8 @@ GO111MODULE = on
 -include build/makelib/k8s_tools.mk
 
 # Setup Images
-DOCKER_REGISTRY ?= crossplane
-IMAGES = $(PROJECT_NAME) $(PROJECT_NAME)-controller
+DOCKER_REGISTRY ?= crossplane # ishankhare07/cdevents-provider
+images = $(project_name) $(project_name)-controller
 -include build/makelib/image.mk
 
 fallthrough: submodules
@@ -108,7 +108,9 @@ help-special: crossplane.help
 .PHONY: crossplane.help help-special
 
 orch-cluster:
-	kind create cluster --name ${CLUSTER_NAME} --config kind-config.yaml
+	# kind create cluster --name ${CLUSTER_NAME} --config kind-config.yaml
+	vcluster create orchestrator -n orch --expose
+	vcluster connect orchestrator --namespace orch
 
 install-crossplane:
 	kubectl create namespace crossplane-system
@@ -132,7 +134,7 @@ create-bootstrap-cluster:
 get-credentials:
 	gcloud container clusters get-credentials bootstrap-cluster --zone asia-south1-a --project tonal-baton-181908
 
-install-knative:
+install-knative-serving:
 	kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.1.0/serving-crds.yaml
 	kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.1.0/serving-core.yaml
 	# install networking layer | kourier
@@ -141,6 +143,10 @@ install-knative:
 			--namespace knative-serving \
 			--type merge \
 			--patch '{"data":{"ingress-class":"kourier.ingress.networking.knative.dev"}}'
+
+install-knative-eventing:
+	kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.2.0/eventing-crds.yaml
+	kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.2.0/eventing-core.yaml
 
 install-tekton:
 	echo "installing tekton pipelines"
@@ -152,8 +158,5 @@ install-tekton:
 	kubectl apply -f tekton/rbac/admin-role.yaml
 	kubectl apply -f tekton/rbac/crb.yaml 
 	kubectl apply -f tekton/rbac/trigger-webhook-role.yaml
-
-
-
 
 install-tools: get-credentials install-knative install-tekton

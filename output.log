@@ -1,0 +1,32 @@
+[1;36m[info]   [0mUse `vcluster connect orchestrator -n orch -- kubectl get ns` to execute a command directly within this terminal
+[1;32m[done] √ [0mVirtual cluster kube config written to: ./kubeconfig.yaml. You can access the cluster via `kubectl --kubeconfig ./kubeconfig.yaml get namespaces`
+Forwarding from 127.0.0.1:12233 -> 8443
+Forwarding from [::1]:12233 -> 8443
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+[1;36m[info]   [0merror during port forwarder: error creating error stream for port 12233 -> 8443: Timeout occurred
+[1;36m[info]   [0mRestarting port forwarding
+Forwarding from 127.0.0.1:12233 -> 8443
+Forwarding from [::1]:12233 -> 8443
+[1;32m[done] √ [0mSuccessfully restarted port forwarding
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+Handling connection for 12233
+[1;36m[info]   [0merror during port forwarder: error creating error stream for port 12233 -> 8443: Timeout occurred
+[1;36m[info]   [0mRestarting port forwarding

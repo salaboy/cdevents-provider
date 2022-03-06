@@ -6,12 +6,20 @@ Currently we have the following things defined in the setup:
     2. Install `crossplane` and `crossplane gcp-provider` on this local kind cluster - `make install-crossplane`
     3. We are now ready to provision our bootstrap GKE cluster and load it with `provider-helm` and `crossplane` itself.
       ```
-        make create-workload-cluster
+        make create-bootstrap-cluster
       ```
 2. At the end of above steps we should have a GKE Cluster provisioned, and the crossplane chart deployed on this cluster through helm.
 3. Get the bootstrap cluster creds locally with `make get-credentials`.
-4. Install knative onto this cluster – `make install-knative`
+4. Install knative-eventing onto this cluster – `make install-knative-eventing`
 5. Install tekton and setup required RBAC – `make install-tekton`
+
+### Use existing cluster as a bootstrap cluster
+If we already have a cluster to use as a bootstrap cluster - to host crossplane and other bootstrapping 
+utilities, then we can skip a few steps and directly jump to the following:
+
+1. Install crossplane on the bootstrapping cluster - `make install-crossplane`
+2. Install tekton - `make install-tekton`
+3. Install knative eventing - `make install-knative-eventing`
 
 ### Controllers and types
 Currently we have all the existing types and controllers defined in `provider-template`

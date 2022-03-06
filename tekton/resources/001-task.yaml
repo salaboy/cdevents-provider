@@ -1,0 +1,20 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: hello
+spec:
+  params:
+    - name: eventType
+      type: string
+    - name: source
+      type: string
+    - name: id
+      type: string
+  steps:
+    - name: hello
+      image: ubuntu
+      command:
+        - echo
+      args:
+        - "Received $(params.eventType) for $(params.source) with event id $(params.id) and body "
+        # - "Hello $(params.firstName)!"

@@ -24,7 +24,7 @@ GO111MODULE = on
 
 # Setup Images
 DOCKER_REGISTRY ?= crossplane # ishankhare07/cdevents-provider
-images = $(project_name) $(project_name)-controller
+IMAGES = $(PROJECT_NAME) $(PROJECT_NAME)-controller
 -include build/makelib/image.mk
 
 fallthrough: submodules

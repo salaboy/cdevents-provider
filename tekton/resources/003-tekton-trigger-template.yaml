@@ -4,26 +4,34 @@ metadata:
   name: test-trigger-template
 spec:
   params:
-    - name: firstName
-      default: anonymous
     - name: eventType
       default: unknown
     - name: source
       default: unknown
     - name: id
       default: unknown
+    - name: path
+    - name: git-source
   resourcetemplates:
     - apiVersion: tekton.dev/v1beta1
       kind: TaskRun
       metadata:
-        generateName: hello-run-
+        generateName: create-gke-cluster-
       spec:
         params:
-          - name: eventType
-            value: $(tt.params.eventType)
-          - name: source
-            value: $(tt.params.source)
-          - name: id
-            value: $(tt.params.id)
+          - name: path
+            value: $(tt.params.path)
+        #   - name: eventType
+        #     value: $(tt.params.eventType)
+        #   - name: source
+        #     value: $(tt.params.source)
+        #   - name: id
+        #     value: $(tt.params.id)
+        resources:
+          inputs:
+            - name: source
+              resourceRef:
+                name: $(tt.params.git-source)
+
         taskRef:
-          name: hello
+          name: create-gke-cluster

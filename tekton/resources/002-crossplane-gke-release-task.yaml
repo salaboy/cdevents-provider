@@ -1,0 +1,26 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: create-gke-cluster
+spec:
+  inputs:
+    resources:
+      - name: source
+        type: git
+    params:
+      - name: path
+        type: string
+        description: Path to yaml manifest to apply
+  steps:
+    - name: kubectl-apply
+      image: bitnami/kubectl
+      args:
+        - "apply"
+        - "-f"
+        - "$(inputs.params.path)"
+    - name: echo-path
+      image: ubuntu
+      command:
+        - ls
+      args:
+        - "$(inputs.params.path)"

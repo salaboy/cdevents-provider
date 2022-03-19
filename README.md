@@ -20,6 +20,13 @@ utilities, then we can skip a few steps and directly jump to the following:
 1. Install crossplane on the bootstrapping cluster - `make install-crossplane`
 2. Install tekton - `make install-tekton`
 3. Install knative eventing - `make install-knative-eventing`
+4. Apply tekton resources - `make install-tekton-resources`. This sets up the following tekton resources:
+  1. `ClusterRole` and `ClusterRoleBinding` for `default` SA
+  2. `PipelineResource` of the git repository to fetch from
+  3. Tekton `Task` for applying the crossplane `Cluster` and `NodePool` yaml manifests.
+  4. Tekton `EventListener`, `TriggerBinding` and `TriggerTemplate` resources
+
+At the end of this, we have a fully connected flow all the way from an event listener to creating a cluster through crossplane.
 
 ### Controllers and types
 Currently we have all the existing types and controllers defined in `provider-template`

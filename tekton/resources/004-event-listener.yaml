@@ -1,11 +1,11 @@
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
-  name: test-listener
+  name: gke-provision-listener
 spec:
   serviceAccountName: tekton-triggers-example-sa
   triggers:
-    - name: trigger-1
+    - name: provisioner
       bindings:
       - ref: test-trigger-binding
       template:

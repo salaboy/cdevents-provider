@@ -1,0 +1,25 @@
+apiVersion: eventing.knative.dev/v1
+kind: Broker
+metadata:
+  name: default
+
+---
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: hello-display
+  namespace: default
+spec:
+  broker: default
+  filter:
+    attributes:
+      type: greeting
+  subscriber:
+    ref:
+      apiVersion: triggers.tekton.dev/v1alpha1
+      kind: EventListener
+      name: gke-provision-listener
+      # apiVersion: v1
+      # kind: Service
+      # name: hello-display
+

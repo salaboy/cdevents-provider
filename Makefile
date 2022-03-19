@@ -147,6 +147,10 @@ install-knative-serving:
 install-knative-eventing:
 	kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.2.0/eventing-crds.yaml
 	kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.2.0/eventing-core.yaml
+	# install default Channel (messaging) layer | in-mem standalone
+	kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.3.1/in-memory-channel.yaml
+	# Install a Broker layer | MT-Channel based
+	kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.3.1/mt-channel-broker.yaml
 
 install-tekton:
 	echo "installing tekton pipelines"
@@ -158,5 +162,8 @@ install-tekton:
 	kubectl apply -f tekton/rbac/admin-role.yaml
 	kubectl apply -f tekton/rbac/crb.yaml 
 	kubectl apply -f tekton/rbac/trigger-webhook-role.yaml
+
+install-tekton-resources:
+	kubectl apply -f tekton/resources/
 
 install-tools: get-credentials install-knative install-tekton

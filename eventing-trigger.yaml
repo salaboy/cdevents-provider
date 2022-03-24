@@ -13,13 +13,14 @@ spec:
   broker: default
   filter:
     attributes:
-      type: greeting
+      type: dev.cd.taskrun.started.v1
   subscriber:
-    ref:
-      apiVersion: triggers.tekton.dev/v1alpha1
-      kind: EventListener
-      name: gke-provision-listener
-      # apiVersion: v1
-      # kind: Service
-      # name: hello-display
+    uri: http://el-gke-provision-listener.default.svc.cluster.local:8080
+      # ref:
+      #   apiVersion: triggers.tekton.dev/v1alpha1
+      #   kind: EventListener
+      #   name: gke-provision-listener
+      #   apiVersion: v1
+      #   kind: Service
+      #   name: el-gke-provision-listener
 

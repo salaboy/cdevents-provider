@@ -135,22 +135,22 @@ get-credentials:
 	gcloud container clusters get-credentials bootstrap-cluster --zone asia-south1-a --project tonal-baton-181908
 
 install-knative-serving:
-	kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.2.0/serving-crds.yaml
-	kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.2.0/serving-core.yaml
+	kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.3.2/serving-crds.yaml
+	kubectl apply -f https://github.com/knative/serving/releases/download/knative-v1.3.2/serving-core.yaml
 	# install networking layer | kourier
-	kubectl apply -f https://github.com/knative/net-kourier/releases/download/knative-v1.2.0/kourier.yaml
+	kubectl apply -f https://github.com/knative/net-kourier/releases/download/knative-v1.3.0/kourier.yaml
 	kubectl patch configmap/config-network \
 			--namespace knative-serving \
 			--type merge \
 			--patch '{"data":{"ingress-class":"kourier.ingress.networking.knative.dev"}}'
 
 install-knative-eventing:
-	kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.2.0/eventing-crds.yaml
-	kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.2.0/eventing-core.yaml
+	kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.3.2/eventing-crds.yaml
+	kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.3.2/eventing-core.yaml
 	# install default Channel (messaging) layer | in-mem standalone
-	kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.3.1/in-memory-channel.yaml
+	kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.3.2/in-memory-channel.yaml
 	# Install a Broker layer | MT-Channel based
-	kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.3.1/mt-channel-broker.yaml
+	kubectl apply -f https://github.com/knative/eventing/releases/download/knative-v1.3.2/mt-channel-broker.yaml
 
 install-tekton:
 	echo "installing tekton pipelines"

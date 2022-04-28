@@ -1,0 +1,35 @@
+apiVersion: eventing.knative.dev/v1
+kind: Broker
+metadata:
+  name: default
+spec:
+  delivery:
+    backoffDelay: PT1S
+    retry: 0
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: eventing-broker-ingress
+  namespace: knative-eventing
+  annotations:
+    cert-manager.io/issuer: letsencrypt-prod
+    cert-manager.k8s.io/issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/upstream-vhost: broker.ishankhare.dev
+spec:
+  rules:
+    - host: broker.ishankhare.dev
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: broker-ingress
+                port:
+                  number: 80
+  tls:
+  - hosts:
+    - broker.ishankhare.dev
+    secretName: broker-cert-prod

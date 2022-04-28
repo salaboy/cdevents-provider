@@ -1,0 +1,32 @@
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: create-crossplane-cluster
+  namespace: default
+spec:
+  broker: default
+  filter:
+    attributes:
+      type: dev.cd.taskrun.started.v1
+  subscriber:
+    uri: http://el-gke-provision-listener.default.svc.cluster.local:8080
+  delivery:
+    backoffDelay: PT1S
+    retry: 0
+---
+
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: install-knative-in-cluster
+  namespace: default
+spec:
+  broker: default
+  filter:
+    attributes:
+      type: some-other-event-type
+  subscriber:
+    uri: http://el-knative-installer-listener.default.svc.cluster.local:8080
+  delivery:
+    backoffDelay: PT1S
+    retry: 0

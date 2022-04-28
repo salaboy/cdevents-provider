@@ -7,7 +7,22 @@ spec:
   triggers:
     - name: provisioner
       bindings:
-      - ref: test-trigger-binding
+      - ref: provision-cluster-binding
       template:
-        ref: test-trigger-template
+        ref: provision-cluster-template
+
+---
+
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: knative-installer-listener
+spec:
+  serviceAccountName: tekton-triggers-example-sa
+  triggers:
+    - name: knative-installer
+      bindings:
+      - ref: knative-installer-binding
+      template:
+        ref: knative-installer-template
 

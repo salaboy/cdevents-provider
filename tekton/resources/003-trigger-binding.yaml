@@ -1,7 +1,7 @@
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerBinding
 metadata:
-  name: test-trigger-binding
+  name: provision-cluster-binding
 spec:
   params:
     - name: eventType
@@ -14,3 +14,18 @@ spec:
       value: $(body.path)
     - name: git-source
       value: $(body.git_source_name)
+
+---
+
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: knative-installer-binding
+spec:
+  params:
+    - name: eventType
+      value: $(header.Ce-Type)
+    - name: source
+      value: $(header.Ce-Source)
+    - name: id
+      value: $(header.Ce-Id) 

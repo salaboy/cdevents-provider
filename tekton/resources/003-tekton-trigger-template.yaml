@@ -1,7 +1,7 @@
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
-  name: test-trigger-template
+  name: provision-cluster-template
 spec:
   params:
     - name: eventType
@@ -21,17 +21,25 @@ spec:
         params:
           - name: path
             value: $(tt.params.path)
-        #   - name: eventType
-        #     value: $(tt.params.eventType)
-        #   - name: source
-        #     value: $(tt.params.source)
-        #   - name: id
-        #     value: $(tt.params.id)
         resources:
           inputs:
             - name: source
               resourceRef:
                 name: $(tt.params.git-source)
-
         taskRef:
           name: create-gke-cluster
+
+---
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: knative-installer-template
+spec:
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: TaskRun
+      metadata:
+        generateName: install-knative-in-cluster-
+      spec:
+        taskRef:
+          name: install-knative-in-cluster

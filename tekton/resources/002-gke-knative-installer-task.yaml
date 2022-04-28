@@ -1,0 +1,117 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: install-knative-in-cluster
+spec:
+  steps:
+    - name: patch-kubeconfig
+      image: bitnami/kubectl
+      script: |
+        cat /var/gke/kubeconfig | sed "s/user: {}/user: {auth-provider: {name: gcp}}/g" > ~/.kube/config.yaml
+        kubectl --kubeconfig ~/.kube/config.yaml cluster-info
+      env:
+        - name: KUBECONFIG
+          value: /.kube/config.yaml
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/gcp/creds
+      volumeMounts:
+        - name: gke-kubeconfig
+          mountPath: /var/gke
+        - name: gcp-app-creds
+          mountPath: /var/gcp
+        - name: patched-kubeconfig
+          mountPath: /.kube
+    - name: install-serving-crds
+      image: bitnami/kubectl
+      command:
+        - kubectl
+      args:
+        - apply
+        - -f
+        - https://github.com/knative/serving/releases/download/knative-v1.3.2/serving-crds.yaml
+      env:
+        - name: KUBECONFIG
+          value: /.kube/config.yaml
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/gcp/creds
+      volumeMounts:
+        - name: gke-kubeconfig
+          mountPath: /var/gke
+        - name: gcp-app-creds
+          mountPath: /var/gcp
+        - name: patched-kubeconfig
+          mountPath: /.kube
+    - name: install-serving-core
+      image: bitnami/kubectl
+      command:
+        - kubectl
+      args:
+        - apply
+        - -f
+        - https://github.com/knative/serving/releases/download/knative-v1.3.2/serving-core.yaml
+      env:
+        - name: KUBECONFIG
+          value: /.kube/config.yaml
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/gcp/creds
+      volumeMounts:
+        - name: gke-kubeconfig
+          mountPath: /var/gke
+        - name: gcp-app-creds
+          mountPath: /var/gcp
+        - name: patched-kubeconfig
+          mountPath: /.kube
+    - name: install-kourier
+      image: bitnami/kubectl
+      command:
+        - kubectl
+      args: 
+        - apply
+        - -f
+        - https://github.com/knative/net-kourier/releases/download/knative-v1.3.0/kourier.yaml
+      env:
+        - name: KUBECONFIG
+          value: /.kube/config.yaml
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/gcp/creds
+      volumeMounts:
+        - name: gke-kubeconfig
+          mountPath: /var/gke
+        - name: gcp-app-creds
+          mountPath: /var/gcp
+        - name: patched-kubeconfig
+          mountPath: /.kube
+    - name: patch-kourier
+      image: bitnami/kubectl
+      command:
+        - kubectl
+      args: 
+        - patch
+        - configmap/config-network
+        - --namespace
+        - knative-serving
+        - --type
+        - merge
+        - --patch
+        - '{"data":{"ingress-class":"kourier.ingress.networking.knative.dev"}}'
+      env:
+        - name: KUBECONFIG
+          value: /.kube/config.yaml
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/gcp/creds
+      volumeMounts:
+        - name: gke-kubeconfig
+          mountPath: /var/gke
+        - name: gcp-app-creds
+          mountPath: /var/gcp
+        - name: patched-kubeconfig
+          mountPath: /.kube
+  volumes:
+    - name: gke-kubeconfig
+      secret:
+        secretName: workload-cluster-creds
+    - name: gcp-app-creds
+      secret:
+        secretName: gcp-creds
+    - name: patched-kubeconfig
+      emptyDir: {}

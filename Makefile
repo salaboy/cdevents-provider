@@ -166,4 +166,7 @@ install-tekton:
 install-tekton-resources:
 	kubectl apply -f tekton/resources/
 
+setup-eventing-broker-and-triggers:
+	kubectl apply -f eventing/
+
 install-tools: get-credentials install-knative install-tekton

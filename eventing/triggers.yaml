@@ -24,7 +24,7 @@ spec:
   broker: default
   filter:
     attributes:
-      type: some-other-event-type
+      type: dev.cd.environment.created.v1
   subscriber:
     uri: http://el-knative-installer-listener.default.svc.cluster.local:8080
   delivery:

@@ -3,6 +3,14 @@ kind: Task
 metadata:
   name: install-knative-in-cluster
 spec:
+  inputs:
+    resources:
+      - name: source
+        type: git
+    params:
+      - name: path
+        type: string
+        description: Path to yaml manifest to apply
   steps:
     - name: patch-kubeconfig
       image: bitnami/kubectl
@@ -99,6 +107,50 @@ spec:
           value: /.kube/config.yaml
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /var/gcp/creds
+      volumeMounts:
+        - name: gke-kubeconfig
+          mountPath: /var/gke
+        - name: gcp-app-creds
+          mountPath: /var/gcp
+        - name: patched-kubeconfig
+          mountPath: /.kube
+    - name: deploy-serving-controller-crds
+      image: bitnami/kubectl
+      command:
+        - kubectl
+      args: 
+        - apply
+        - -f
+        - "$(inputs.params.path)/crds/"
+      env:
+        - name: KUBECONFIG
+          value: /.kube/config.yaml
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/gcp/creds
+        - name: KO_DOCKER_REPO
+          value: ishankhare07
+      volumeMounts:
+        - name: gke-kubeconfig
+          mountPath: /var/gke
+        - name: gcp-app-creds
+          mountPath: /var/gcp
+        - name: patched-kubeconfig
+          mountPath: /.kube
+    - name: deploy-serving-controller
+      image: bitnami/kubectl
+      command:
+        - kubectl
+      args: 
+        - apply
+        - -f
+        - "$(inputs.params.path)/controllercrds
+      env:
+        - name: KUBECONFIG
+          value: /.kube/config.yaml
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/gcp/creds
+        - name: KO_DOCKER_REPO
+          value: ishankhare07
       volumeMounts:
         - name: gke-kubeconfig
           mountPath: /var/gke

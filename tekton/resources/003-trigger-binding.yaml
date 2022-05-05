@@ -29,3 +29,7 @@ spec:
       value: $(header.Ce-Source)
     - name: id
       value: $(header.Ce-Id) 
+    - name: path
+      value: $(body.path)
+    - name: git-source
+      value: $(body.git_source_name)

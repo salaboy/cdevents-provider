@@ -35,11 +35,28 @@ kind: TriggerTemplate
 metadata:
   name: knative-installer-template
 spec:
+  params:
+    - name: eventType
+      default: unknown
+    - name: source
+      default: unknown
+    - name: id
+      default: unknown
+    - name: path
+    - name: git-source
   resourcetemplates:
     - apiVersion: tekton.dev/v1beta1
       kind: TaskRun
       metadata:
         generateName: install-knative-in-cluster-
       spec:
+        params:
+          - name: path
+            value: $(tt.params.path)
+        resources:
+          inputs:
+            - name: source
+              resourceRef:
+                name: $(tt.params.git-source)
         taskRef:
           name: install-knative-in-cluster

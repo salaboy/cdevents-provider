@@ -24,7 +24,6 @@ import (
 
 	"github.com/salaboy/cdevents-provider/internal/controller/cluster"
 	"github.com/salaboy/cdevents-provider/internal/controller/config"
-	"github.com/salaboy/cdevents-provider/internal/controller/mytype"
 )
 
 // Setup creates all Template controllers with the supplied logger and adds them to
@@ -32,7 +31,6 @@ import (
 func Setup(mgr ctrl.Manager, l logging.Logger, wl workqueue.RateLimiter) error {
 	for _, setup := range []func(ctrl.Manager, logging.Logger, workqueue.RateLimiter) error{
 		config.Setup,
-		mytype.Setup,
 		cluster.Setup,
 	} {
 		if err := setup(mgr, l, wl); err != nil {

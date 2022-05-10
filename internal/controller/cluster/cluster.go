@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	cloudevents "github.com/cloudevents/sdk-go/v2"
 	commonv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
 	"github.com/pkg/errors"
 	corev1 "k8s.io/api/core/v1"
@@ -37,6 +38,7 @@ import (
 	containerv1beta2 "github.com/crossplane/provider-gcp/apis/container/v1beta2"
 
 	apisv1alpha1 "github.com/salaboy/cdevents-provider/apis/v1alpha1"
+	cloudeventclient "github.com/salaboy/cdevents-provider/internal/cloudevents"
 )
 
 const (
@@ -71,7 +73,9 @@ func Setup(mgr ctrl.Manager, l logging.Logger, rl workqueue.RateLimiter) error {
 		managed.WithExternalConnecter(&connector{
 			kube:         mgr.GetClient(),
 			usage:        resource.NewProviderConfigUsageTracker(mgr.GetClient(), &apisv1alpha1.ProviderConfigUsage{}),
-			newServiceFn: newNoOpService}),
+			newServiceFn: newNoOpService,
+			logger:       l,
+		}),
 		managed.WithLogger(l.WithValues("controller", name)),
 		managed.WithRecorder(event.NewAPIRecorder(mgr.GetEventRecorderFor(name))))
 
@@ -89,6 +93,7 @@ type connector struct {
 	kube         client.Client
 	usage        resource.Tracker
 	newServiceFn func(creds []byte) (interface{}, error)
+	logger       logging.Logger
 }
 
 // Connect typically produces an ExternalClient by:
@@ -123,7 +128,21 @@ func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.E
 		return nil, errors.Wrap(err, errNewClient)
 	}
 
-	return &external{service: svc}, nil
+	protocol, err := cloudevents.NewHTTP()
+	if err != nil {
+		return nil, errors.Wrap(err, errNewClient)
+	}
+
+	cloudEventClient, err := cloudevents.NewClient(protocol, cloudevents.WithUUIDs(), cloudevents.WithTimeNow())
+	if err != nil {
+		return nil, errors.Wrap(err, errNewClient)
+	}
+
+	return &external{
+		service:          svc,
+		cloudEventClient: cloudEventClient,
+		logger:           c.logger,
+	}, nil
 }
 
 // An ExternalClient observes, then either creates, updates, or deletes an
@@ -132,9 +151,12 @@ type external struct {
 	// A 'client' used to connect to the external resource API. In practice this
 	// would be something like an AWS SDK client.
 	service interface{}
+
+	logger           logging.Logger
+	cloudEventClient cloudevents.Client
 }
 
-func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.ExternalObservation, error) {
+func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.ExternalObservation, error) {
 	// cr, ok := mg.(*v1alpha1.MyType)
 	cr, ok := mg.(*containerv1beta2.Cluster)
 	if !ok {
@@ -143,12 +165,25 @@ func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 
 	// These fmt statements should be removed in the real implementation.
 	// fmt.Printf("Observing: %+v", cr)
-
 	if len(cr.Status.Conditions) > 0 {
 		for _, cond := range cr.Status.Conditions {
 			if cond.Type == commonv1.TypeReady {
 				if cond.Status == corev1.ConditionTrue {
 					fmt.Println("*************** Cluster ready **************")
+
+					ctx = context.WithValue(ctx, "logger", e.logger)
+					ctx = cloudeventclient.InjectClient(ctx, e.cloudEventClient)
+					ctx = cloudeventclient.SetTarget(ctx, "http://broker-ingress.knative-eventing.svc.cluster.local/default/default")
+
+					err := cloudeventclient.SendEvent(ctx, cloudeventclient.EnvironmentCreated, cr)
+					if err != nil {
+						e.logger.Info("error sending cloud event", "error", err.Error())
+						return managed.ExternalObservation{
+							ResourceExists:   true,
+							ResourceUpToDate: true,
+						}, err
+					}
+					// TODO: send event with ctx
 				}
 			}
 		}
@@ -171,7 +206,7 @@ func (c *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 	}, nil
 }
 
-func (c *external) Create(ctx context.Context, mg resource.Managed) (managed.ExternalCreation, error) {
+func (e *external) Create(ctx context.Context, mg resource.Managed) (managed.ExternalCreation, error) {
 	// cr, ok := mg.(*v1alpha1.MyType)
 	cr, ok := mg.(*containerv1beta2.Cluster)
 	if !ok {
@@ -187,7 +222,7 @@ func (c *external) Create(ctx context.Context, mg resource.Managed) (managed.Ext
 	}, nil
 }
 
-func (c *external) Update(ctx context.Context, mg resource.Managed) (managed.ExternalUpdate, error) {
+func (e *external) Update(ctx context.Context, mg resource.Managed) (managed.ExternalUpdate, error) {
 	// cr, ok := mg.(*v1alpha1.MyType)
 	cr, ok := mg.(*containerv1beta2.Cluster)
 	if !ok {
@@ -203,7 +238,7 @@ func (c *external) Update(ctx context.Context, mg resource.Managed) (managed.Ext
 	}, nil
 }
 
-func (c *external) Delete(ctx context.Context, mg resource.Managed) error {
+func (e *external) Delete(ctx context.Context, mg resource.Managed) error {
 	// cr, ok := mg.(*v1alpha1.MyType)
 	cr, ok := mg.(*containerv1beta2.Cluster)
 	if !ok {

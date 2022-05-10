@@ -3,11 +3,14 @@ module github.com/salaboy/cdevents-provider
 go 1.16
 
 require (
+	github.com/cdfoundation/sig-events/cde/sdk/go v0.0.0-20220509154013-4eb2d5c9487c
+	github.com/cloudevents/sdk-go/v2 v2.9.0
 	github.com/crossplane/crossplane-runtime v0.15.1-0.20211202230900-d43d510ec578
 	github.com/crossplane/crossplane-tools v0.0.0-20210916125540-071de511ae8e
 	github.com/crossplane/provider-gcp v0.20.0
 	github.com/google/go-cmp v0.5.6
 	github.com/pkg/errors v0.9.1
+	github.com/satori/go.uuid v1.2.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	k8s.io/api v0.21.3
 	k8s.io/apimachinery v0.21.3

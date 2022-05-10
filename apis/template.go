@@ -20,8 +20,6 @@ package apis
 import (
 	containerv1beta2 "github.com/crossplane/provider-gcp/apis/container/v1beta2"
 
-	samplev1alpha1 "github.com/salaboy/cdevents-provider/apis/sample/v1alpha1"
-	templatev1alpha1 "github.com/salaboy/cdevents-provider/apis/sample/v1alpha1"
 	providerv1alpha1 "github.com/salaboy/cdevents-provider/apis/v1alpha1"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -30,8 +28,6 @@ import (
 func init() {
 	// Register the types with the Scheme so the components can map objects to GroupVersionKinds and back
 	AddToSchemes = append(AddToSchemes,
-		templatev1alpha1.SchemeBuilder.AddToScheme,
-		samplev1alpha1.SchemeBuilder.AddToScheme,
 		providerv1alpha1.SchemeBuilder.AddToScheme,
 		containerv1beta2.SchemeBuilder.AddToScheme,
 	)

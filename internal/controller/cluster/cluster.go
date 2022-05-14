@@ -171,7 +171,7 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 		for _, cond := range cr.Status.Conditions {
 			if cond.Type == commonv1.TypeReady {
 				if cond.Status == corev1.ConditionTrue {
-					fmt.Println("*************** Cluster ready **************")
+					fmt.Println("*************** Cluster ready **************", cr.Name)
 
 					// check if create event is already successfully sent
 					ok, err := checkClusterCreationSuccessEvent(ctx, e.kubeclient, cr.Name)
@@ -205,6 +205,8 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 						}
 
 						e.logger.Info("successfully registered sent out cloudevent with configmap")
+					} else {
+						e.logger.Info("cloudevent already triggered for", "cluster", cr.Name)
 					}
 				}
 			}

@@ -3,7 +3,7 @@ curl --insecure -v "https://broker.ishankhare.dev/default/default" \
 -X POST \
 -H "Ce-Id: setup-gke-cluster" \
 -H "Ce-Specversion: 1.0" \
--H "Ce-Type: dev.cd.environment.created.v1" \
+-H "Ce-Type: cd.environment.created.v1" \
 -H "Ce-Source: curl" \
 -H "Content-Type: application/json" \
 -H "Host: broker.ishankhare.dev" \

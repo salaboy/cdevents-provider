@@ -68,6 +68,7 @@ go.cachedir:
 run: go.build
 	@$(INFO) Running Crossplane locally out-of-cluster . . .
 	@# To see other arguments that can be provided, run the command with --help instead
+	@$(KUBECTL) apply -f package/deploy/status-configmap.yaml
 	$(GO_OUT_DIR)/$(PROJECT_NAME) --debug
 
 dev: $(KIND) $(KUBECTL)

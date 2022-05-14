@@ -1,0 +1,27 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cdevents-provider-controller
+rules:
+  - apiGroups: ["template.crossplane.io"]
+    resources:
+      - providerconfigs
+      - providerconfigusages
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cdevents-provider-controller-binding
+subjects:
+  - kind: ServiceAccount
+    name: provider-gcp-4208289b1187
+    namespace: crossplane-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cdevents-provider-controller

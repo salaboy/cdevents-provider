@@ -169,4 +169,7 @@ install-tekton-resources:
 setup-eventing-broker-and-triggers:
 	kubectl apply -f eventing/
 
+deploy-cdevents-provider:
+	kubectl apply -f package/rbac/controller.yaml
+	kubectl apply -f package/deploy/controller.yaml
 install-tools: get-credentials install-knative install-tekton

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cdevents-provider
+  namespace: crossplane-system
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      pkg.crossplane.io/provider: cdevents-provider
+      pkg.crossplane.io/revision: cdevents-provider
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        pkg.crossplane.io/provider: cdevents-provider
+        pkg.crossplane.io/revision: cdevents-provider
+      name: cdevents-provider
+      namespace: crossplane-system
+    spec:
+      containers:
+      - image: ishankhare07/cdevents-provider-controller-amd64:v0.0.0-24.g80e9537
+        imagePullPolicy: IfNotPresent
+        name: cdevents-provider
+        ports:
+        - containerPort: 8080
+          name: metrics
+          protocol: TCP
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+          runAsGroup: 2000
+          runAsNonRoot: true
+          runAsUser: 2000
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext:
+        runAsGroup: 2000
+        runAsNonRoot: true
+        runAsUser: 2000
+      serviceAccount: provider-gcp-4208289b1187
+      serviceAccountName: provider-gcp-4208289b1187
+      terminationGracePeriodSeconds: 30

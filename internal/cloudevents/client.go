@@ -40,6 +40,8 @@ type key int
 const (
 	// EventSink defines the endpoint for sink for cloud events
 	EventSink key = iota
+	// Logger is the key in context for the logget object
+	Logger
 )
 
 // func init() {
@@ -64,7 +66,7 @@ const (
 
 // Get returns a cloud events client or error
 func Get(ctx context.Context) (cloudevents.Client, error) {
-	l := ctx.Value("logger")
+	l := ctx.Value(Logger)
 	if l == nil {
 		return nil, fmt.Errorf("cannot get logger from context")
 	}
@@ -103,7 +105,7 @@ func SetTarget(ctx context.Context, target string) context.Context {
 // SendEvent is responsible for sending the crossplane event to the injected
 // event sink endpoint
 func SendEvent(ctx context.Context, eventType CrossplaneEvent, obj metav1.Object) error {
-	logger, ok := ctx.Value("logger").(logging.Logger) // logging.FromContext(ctx)
+	logger, ok := ctx.Value(Logger).(logging.Logger) // logging.FromContext(ctx)
 	if !ok {
 		return errors.New("cannot get logger from context")
 	}

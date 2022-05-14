@@ -171,7 +171,7 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 				if cond.Status == corev1.ConditionTrue {
 					fmt.Println("*************** Cluster ready **************")
 
-					ctx = context.WithValue(ctx, "logger", e.logger)
+					ctx = context.WithValue(ctx, cloudeventclient.Logger, e.logger)
 					ctx = cloudeventclient.InjectClient(ctx, e.cloudEventClient)
 					ctx = cloudeventclient.SetTarget(ctx, "http://broker-ingress.knative-eventing.svc.cluster.local/default/default")
 

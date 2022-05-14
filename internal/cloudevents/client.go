@@ -136,12 +136,12 @@ func SendEvent(ctx context.Context, eventType CrossplaneEvent, obj metav1.Object
 		result := client.Send(ctx, event)
 		if !cloudevents.IsACK(result) {
 			logger.Info("Failed to get ack for cloudevent: ", "error", result.Error())
-			return err
+			return result
 		}
 
 		if cloudevents.IsUndelivered(result) {
 			logger.Info("failed sending cloud event, error: ", result.Error())
-			return err
+			return result
 		}
 
 		logger.Info("Sent event for type ", "event type", EnvironmentCreated)

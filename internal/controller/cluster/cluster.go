@@ -142,6 +142,7 @@ func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.E
 		service:          svc,
 		cloudEventClient: cloudEventClient,
 		logger:           c.logger,
+		kubeclient:       c.kube,
 	}, nil
 }
 
@@ -154,6 +155,7 @@ type external struct {
 
 	logger           logging.Logger
 	cloudEventClient cloudevents.Client
+	kubeclient       client.Client
 }
 
 func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.ExternalObservation, error) {
@@ -171,19 +173,39 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 				if cond.Status == corev1.ConditionTrue {
 					fmt.Println("*************** Cluster ready **************")
 
-					ctx = context.WithValue(ctx, cloudeventclient.Logger, e.logger)
-					ctx = cloudeventclient.InjectClient(ctx, e.cloudEventClient)
-					ctx = cloudeventclient.SetTarget(ctx, "http://broker-ingress.knative-eventing.svc.cluster.local/default/default")
-
-					err := cloudeventclient.SendEvent(ctx, cloudeventclient.EnvironmentCreated, cr)
+					// check if create event is already successfully sent
+					ok, err := checkClusterCreationSuccessEvent(ctx, e.kubeclient, cr.Name)
 					if err != nil {
-						e.logger.Info("error sending cloud event", "error", err.Error())
+						e.logger.Info("error checking event in register", "error", err.Error())
 						return managed.ExternalObservation{
 							ResourceExists:   true,
 							ResourceUpToDate: true,
 						}, err
 					}
-					// TODO: send event with ctx
+
+					if !ok {
+						// this is the first occurrence of successful cluster creation
+						ctx = context.WithValue(ctx, cloudeventclient.Logger, e.logger)
+						ctx = cloudeventclient.InjectClient(ctx, e.cloudEventClient)
+						ctx = cloudeventclient.SetTarget(ctx, "http://broker-ingress.knative-eventing.svc.cluster.local/default/default")
+
+						err := cloudeventclient.SendEvent(ctx, cloudeventclient.EnvironmentCreated, cr)
+						if err != nil {
+							e.logger.Info("error sending cloud event", "error", err.Error())
+							return managed.ExternalObservation{
+								ResourceExists:   true,
+								ResourceUpToDate: true,
+							}, err
+						}
+
+						// register this for future de-duplication
+						err = registerClusterCreationSuccessEvent(ctx, e.kubeclient, cr.Name)
+						if err != nil {
+							e.logger.Info("error registering successful event sent", "error", err.Error())
+						}
+
+						e.logger.Info("successfully registered sent out cloudevent with configmap")
+					}
 				}
 			}
 		}

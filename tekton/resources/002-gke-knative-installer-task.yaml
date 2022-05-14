@@ -143,7 +143,7 @@ spec:
       args: 
         - apply
         - -f
-        - "$(inputs.params.path)/controllercrds
+        - "$(inputs.params.path)/controller/"
       env:
         - name: KUBECONFIG
           value: /.kube/config.yaml

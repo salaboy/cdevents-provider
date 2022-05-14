@@ -25,7 +25,7 @@ spec:
       namespace: crossplane-system
     spec:
       containers:
-      - image: ishankhare07/cdevents-provider-controller-amd64:v0.0.0-24.g80e9537
+      - image: ishankhare07/cdevents-provider-controller-amd64:v0.0.0-28.ge0a6573
         imagePullPolicy: IfNotPresent
         name: cdevents-provider
         ports:

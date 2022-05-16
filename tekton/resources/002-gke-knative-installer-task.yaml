@@ -143,7 +143,29 @@ spec:
       args: 
         - apply
         - -f
-        - "$(inputs.params.path)/controller/"
+        - "$(inputs.params.path)/controller/deploy.yaml"
+      env:
+        - name: KUBECONFIG
+          value: /.kube/config.yaml
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/gcp/creds
+        - name: KO_DOCKER_REPO
+          value: ishankhare07
+      volumeMounts:
+        - name: gke-kubeconfig
+          mountPath: /var/gke
+        - name: gcp-app-creds
+          mountPath: /var/gcp
+        - name: patched-kubeconfig
+          mountPath: /.kube
+    - name: deploy-serving-controller-configmap-sink
+      image: bitnami/kubectl
+      script: |
+        cat "$(inputs.params.path)/controller/configmap.yaml" | sed "s/target: \"\"/target: https:\/\/broker.ishankhare.dev\/default\/default/g" | kubectl apply -f -
+      # args: 
+      #   - apply
+      #   - -f
+      #   - "$(inputs.params.path)/controller/configmap.yaml"
       env:
         - name: KUBECONFIG
           value: /.kube/config.yaml

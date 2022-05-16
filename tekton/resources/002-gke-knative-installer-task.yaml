@@ -114,6 +114,26 @@ spec:
           mountPath: /var/gcp
         - name: patched-kubeconfig
           mountPath: /.kube
+    - name: configure-dns
+      image: bitnami/kubectl
+      command:
+        - kubectl
+      args:
+        - apply
+        - -f
+        - https://github.com/knative/serving/releases/download/knative-v1.4.0/serving-default-domain.yaml
+      env:
+        - name: KUBECONFIG
+          value: /.kube/config.yaml
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/gcp/creds
+      volumeMounts:
+        - name: gke-kubeconfig
+          mountPath: /var/gke
+        - name: gcp-app-creds
+          mountPath: /var/gcp
+        - name: patched-kubeconfig
+          mountPath: /.kube
     - name: deploy-serving-controller-crds
       image: bitnami/kubectl
       command:

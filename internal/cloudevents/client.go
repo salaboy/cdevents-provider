@@ -181,6 +181,11 @@ func createEvent(cdEventType string, obj metav1.Object) cloudevents.Event {
 	event.SetID(uuid.NewV4().String())
 	event.SetType(cdEventType)
 	event.SetTime(time.Now())
+	event.SetData("application/json", map[string]interface{}{
+		"path":            "workspace/source/config/",
+		"git_source_name": "cluster-git",
+		"docker_repo":     "ishankhare07",
+	})
 
 	return event
 }

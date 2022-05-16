@@ -1,0 +1,17 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: ksvc-deployed-success-msg
+spec:
+  inputs:
+    params:
+      - name: source
+        type: string
+        description: Source of the event, here will be the ksvc namespacedName
+  steps:
+    - name: print-success
+      image: ubuntu
+      command:
+        - echo
+      args:
+        - "Received event for successfully deployed ksvc: $(inputs.params.source)"

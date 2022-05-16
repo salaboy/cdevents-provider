@@ -26,3 +26,18 @@ spec:
       template:
         ref: knative-installer-template
 
+---
+
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: ksvc-deployed-sink
+spec:
+  serviceAccountName: tekton-triggers-example-sa
+  triggers:
+    - name: knative-installer
+      bindings:
+      - ref: ksvc-deployed-sink-binding
+      template:
+        ref: ksvc-deployed-sink-template
+

@@ -60,3 +60,38 @@ spec:
                 name: $(tt.params.git-source)
         taskRef:
           name: install-knative-in-cluster
+
+---
+
+apiVersion: triggers.tekton.dev/v1beta1
+kind: TriggerTemplate
+metadata:
+  name: ksvc-deployed-sink-template
+spec:
+  params:
+    - name: eventType
+      default: unknown
+    - name: source
+      default: unknown
+    - name: id
+      default: unknown
+    # - name: path
+    # - name: git-source
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: TaskRun
+      metadata:
+        generateName: display-ksvc-deployed-success-
+      spec:
+        params:
+          # - name: path
+          #   value: $(tt.params.path)
+          - name: source
+            value: $(tt.params.source)
+        resources:
+          # inputs:
+          #   - name: source
+          #     resourceRef:
+          #       name: $(tt.params.git-source)
+        taskRef:
+          name: ksvc-deployed-success-msg

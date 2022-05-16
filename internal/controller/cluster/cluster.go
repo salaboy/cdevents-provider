@@ -129,6 +129,12 @@ func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.E
 	}
 
 	protocol, err := cloudevents.NewHTTP()
+	// sslDisableHTTPTransport := &http.Transport{
+	// 	TLSClientConfig: &tls.Config{
+	// 		InsecureSkipVerify: true,
+	// 	},
+	// }
+	// protocol.Client.Transport = sslDisableHTTPTransport
 	if err != nil {
 		return nil, errors.Wrap(err, errNewClient)
 	}

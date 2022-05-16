@@ -30,3 +30,20 @@ spec:
   delivery:
     backoffDelay: PT1S
     retry: 0
+
+---
+apiVersion: eventing.knative.dev/v1
+kind: Trigger
+metadata:
+  name: ksvc-deployed-event-sink
+  namespace: default
+spec:
+  broker: default
+  filter:
+    attributes:
+      type: cd.service.deployed.v1
+  subscriber:
+    uri: http://el-ksvc-deployed-sink.default.svc.cluster.local:8080
+  delivery:
+    backoffDelay: PT1S
+    retry: 0

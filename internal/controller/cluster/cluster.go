@@ -18,7 +18,9 @@ package cluster
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"net/http"
 
 	cloudevents "github.com/cloudevents/sdk-go/v2"
 	commonv1 "github.com/crossplane/crossplane-runtime/apis/common/v1"
@@ -129,12 +131,12 @@ func (c *connector) Connect(ctx context.Context, mg resource.Managed) (managed.E
 	}
 
 	protocol, err := cloudevents.NewHTTP()
-	// sslDisableHTTPTransport := &http.Transport{
-	// 	TLSClientConfig: &tls.Config{
-	// 		InsecureSkipVerify: true,
-	// 	},
-	// }
-	// protocol.Client.Transport = sslDisableHTTPTransport
+	sslDisableHTTPTransport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
+	}
+	protocol.Client.Transport = sslDisableHTTPTransport
 	if err != nil {
 		return nil, errors.Wrap(err, errNewClient)
 	}
@@ -193,7 +195,7 @@ func (e *external) Observe(ctx context.Context, mg resource.Managed) (managed.Ex
 						// this is the first occurrence of successful cluster creation
 						ctx = context.WithValue(ctx, cloudeventclient.Logger, e.logger)
 						ctx = cloudeventclient.InjectClient(ctx, e.cloudEventClient)
-						ctx = cloudeventclient.SetTarget(ctx, "http://broker-ingress.knative-eventing.svc.cluster.local/default/default")
+						ctx = cloudeventclient.SetTarget(ctx, "https://broker.ishankhare.dev/default/default")
 
 						err := cloudeventclient.SendEvent(ctx, cloudeventclient.EnvironmentCreated, cr)
 						if err != nil {

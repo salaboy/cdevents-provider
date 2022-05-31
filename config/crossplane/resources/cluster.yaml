@@ -6,7 +6,7 @@ spec:
   deletionPolicy: Delete
   forProvider:
     initialClusterVersion: latest
-    location: asia-south1-a
+    location: us-central1-c
     loggingService: none
     monitoringService: none
   writeConnectionSecretToRef:
